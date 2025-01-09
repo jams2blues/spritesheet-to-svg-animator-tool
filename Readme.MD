@@ -1,14 +1,14 @@
-Spritesheet to SVG Animator Tool
+##Spritesheet to SVG Animator Tool
 
-Purpose:
+#Purpose:
 
 The Spritesheet to SVG Animator Tool is designed to convert sprite sheets (PNG images) and their corresponding JSON files into animated SVG files. It streamlines the creation of lightweight, scalable animations suitable for web projects, NFT platforms, and digital art showcases.
 
-Key Features:
+#Key Features:
 
-Input Methods:
+#Input Methods:
 
-JSON File Upload:
+#JSON File Upload:
 
 Sprite Sheet PNG: Upload a sprite sheet image in PNG format, which can be in horizontal or vertical layout.
 Aseprite JSON File: Upload a JSON file exported from Aseprite containing detailed frame information and individual frame durations.
@@ -59,7 +59,7 @@ Focus Styles: Visual indicators for focused elements enhance usability.
 Responsive Design: The tool adapts to different screen sizes for mobile and desktop use.
 Instructions and Documentation:
 
-Step-by-Step Guide:
+#Step-by-Step Guide:
 
 Detailed instructions on preparing sprite sheets in Aseprite and using the tool effectively.
 Tooltips and Help Icons:
@@ -67,7 +67,7 @@ Tooltips and Help Icons:
 Inline assistance for input fields and options.
 Compatibility:
 
-Browsers and Devices:
+#Browsers and Devices:
 
 Compatible with major web browsers (Chrome, Firefox, Safari, Edge).
 Responsive design ensures usability on desktops, tablets, and smartphones.
@@ -119,7 +119,7 @@ Click Generate SVG to create the animated SVG code.
 The live preview displays the animation immediately.
 Optimization and Output:
 
-Compress SVG:
+#Compress SVG:
 
 Optionally compress the SVG to reduce file size.
 Copy or Download:
@@ -128,7 +128,7 @@ Copy the SVG code to the clipboard.
 Download the SVG file for use in projects.
 Verification:
 
-Preview Animation:
+#Preview Animation:
 
 Open the downloaded SVG file in a browser to ensure it plays correctly.
 Responsive Testing:
