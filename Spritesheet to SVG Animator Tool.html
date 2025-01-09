@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spritesheet to SVG Animator Tool</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background-color: #2e2e2e;
+      border-radius: 8px;
+    }
+
+    .section h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input[type="file"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      background-color: #3e3e3e;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 12px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button:disabled {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 200px;
+      font-family: monospace;
+    }
+
+    .output-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .output-buttons button {
+      flex: 1;
+    }
+
+    .instructions {
+      background-color: #3e3e3e;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .toggle-section {
+      margin-bottom: 15px;
+    }
+
+    .manual-inputs {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .output-buttons {
+        flex-direction: column;
+      }
+    }
+
+    /* Image Rendering based on scaling option */
+    .pixelated {
+      image-rendering: pixelated;
+      -ms-interpolation-mode: nearest-neighbor;
+    }
+
+    .smooth {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimizeQuality;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    /* Preview Area Styles */
+    .preview-section {
+          margin-bottom: 25px;
+          padding: 20px;
+          background-color: #2e2e2e;
+          border-radius: 8px;
+        }
+
+        .preview-container {
+          background-color: #fff;
+          padding: 10px;
+          border-radius: 4px;
+          text-align: center;
+        }
+
+        .preview-container svg {
+          max-width: 100%;
+          height: auto;
+        }
+
+        /* Accessibility Focus Styles */
+        button:focus, input:focus, select:focus, textarea:focus {
+          outline: 2px solid #ff4d4d;
+        }    
+  </style>
+</head>
+<body>
+
+  <h1>Spritesheet to SVG Animator Tool</h1>
+
+  <div class="container">
+
+    <!-- Instructions Section -->
+    <div class="section instructions">
+      <h2>Instructions:</h2>
+      <ol>
+        <li><strong>Prepare your animation in Aseprite:</strong>
+          <ul>
+            <li>Ensure your animation frames are organized correctly.</li>
+            <li>Go to <em>File &gt; Export Sprite Sheet...</em>.</li>
+            <li>In the <strong>Layout</strong> section:
+              <ul>
+                <li>Set <strong>Sheet Type</strong> to <em>Horizontal</em>.</li>
+                <li>Uncheck <strong>Merge Duplicates</strong> to include all frames.</li>
+              </ul>
+            </li>
+            <li>In the <strong>Spritesheet</strong> section:
+              <ul>
+                <li>Uncheck <strong>Trim Sprite</strong> to keep frames at consistent sizes.</li>
+              </ul>
+            </li>
+            <li>In the <strong>Data File</strong> section:
+              <ul>
+                <li>Check <strong>Output File</strong> to export the JSON file.</li>
+                <li>Set <strong>Data Format</strong> to <em>JSON Hash</em>.</li>
+                <li>Click the gear icon next to <strong>Data Format</strong> and ensure that only <strong>Frame Tags</strong> is selected in the <strong>Content</strong> dropdown. Uncheck <strong>Layers</strong>, <strong>Tags</strong>, and <strong>Slices</strong>.</li>
+              </ul>
+            </li>
+            <li>Click <strong>Export</strong> to save your sprite sheet PNG and JSON file.</li>
+          </ul>
+        </li>
+        <li>Select whether to use a JSON file or manual inputs in the "Sprite Sheet Input Method" section below.</li>
+        <li>Upload your files or provide the necessary details.</li>
+        <li>Adjust the animation settings as desired.</li>
+        <li>Click <strong>Generate SVG</strong> to create your animated SVG.</li>
+        <li>Optionally, compress the SVG for optimized performance.</li>
+        <li>Copy or download the SVG for use on NFT platforms and other applications.</li>
+      </ol>
+      <p><strong>Important Notes:</strong></p>
+      <ul>
+        <li>Ensure that <strong>Merge Duplicates</strong> is unchecked during export to include all frames, even if some frames are identical.</li>
+        <li>Uncheck <strong>Layers</strong>, <strong>Tags</strong>, and <strong>Slices</strong> in the <strong>Hash Content</strong> settings to prevent unnecessary data in the JSON file.</li>
+        <li>Export the sprite sheet in a horizontal layout to be compatible with this tool.</li>
+        <li>Test and validate your generated SVGs thoroughly before deployment to ensure compatibility and functionality across different platforms and devices.</li>
+      </ul>
+    </div>
+
+    <!-- Sprite Sheet Input Method Section -->
+    <div class="section">
+      <h2>Sprite Sheet Input Method</h2>
+      <div class="toggle-section">
+        <label>
+          <input type="radio" name="input-method" value="json" checked>
+          Use JSON File
+        </label>
+        <label>
+          <input type="radio" name="input-method" value="manual">
+          Use Manual Inputs
+        </label>
+        <!-- New Option for Sprite Sheet Layout -->
+        <label for="sprite-layout">Sprite Sheet Layout:</label>
+        <select id="sprite-layout">
+          <option value="horizontal" selected>Horizontal</option>
+          <option value="vertical">Vertical</option>
+        </select>
+      </div>
+
+      <!-- JSON Upload Section -->
+      <div id="json-upload-section">
+        <label for="sprite-sheet">Upload Sprite Sheet PNG:</label>
+        <input type="file" id="sprite-sheet" accept="image/png">
+
+        <label for="json-file">Upload JSON File:</label>
+        <input type="file" id="json-file" accept=".json">
+      </div>
+
+      <!-- Manual Inputs Section -->
+      <div id="manual-input-section" class="manual-inputs">
+        <label for="frame-count">Number of Frames:</label>
+        <input type="number" id="frame-count" min="1" value="6">
+
+        <label for="frame-width">Frame Width (px):</label>
+        <input type="number" id="frame-width" min="1" value="100">
+
+        <label for="frame-height">Frame Height (px):</label>
+        <input type="number" id="frame-height" min="1" value="100">
+
+        <label for="frame-durations">Frame Durations (ms):</label>
+        <textarea id="frame-durations" placeholder="Enter comma-separated durations, e.g., 500,500,500,250,250,1000" rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Animation Settings Section -->
+    <div class="section">
+      <h2>Animation Settings</h2>
+      <label for="scaling">Scaling:</label>
+      <select id="scaling">
+        <option value="pixelated">Pixelated (Best for pixel art)</option>
+        <option value="smooth">Smooth</option>
+      </select>
+      <!-- New Loop Control Option -->
+      <label for="loop-count">Loop Count:</label>
+      <input type="number" id="loop-count" min="0" value="0">
+      <small>(Enter 0 for infinite looping)</small>
+    </div>
+
+     <!-- Preview Section -->
+     <div class="section preview-section">
+      <h2>Animation Preview</h2>
+      <div class="preview-container" id="preview-container">
+        <!-- SVG preview will be injected here -->
+      </div>
+    </div>
+
+    <!-- Output Section -->
+    <div class="section">
+      <h2>Generated SVG Code</h2>
+      <textarea id="output-svg" placeholder="Your generated SVG code will appear here..." readonly></textarea>
+      <div class="output-buttons">
+        <button id="generate-svg">Generate SVG</button>
+        <button id="compress-svg" disabled>Compress SVG</button>
+        <button id="copy-svg" disabled>Copy SVG Code</button>
+        <button id="download-svg" disabled>Download SVG File</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Elements
+    const inputMethodRadios = document.getElementsByName('input-method');
+    const jsonUploadSection = document.getElementById('json-upload-section');
+    const manualInputSection = document.getElementById('manual-input-section');
+    const spriteSheetInput = document.getElementById('sprite-sheet');
+    const jsonFileInput = document.getElementById('json-file');
+    const frameCountInput = document.getElementById('frame-count');
+    const frameWidthInput = document.getElementById('frame-width');
+    const frameHeightInput = document.getElementById('frame-height');
+    const frameDurationsInput = document.getElementById('frame-durations');
+    const scalingSelect = document.getElementById('scaling');
+    const generateSvgButton = document.getElementById('generate-svg');
+    const compressSvgButton = document.getElementById('compress-svg');
+    const copySvgButton = document.getElementById('copy-svg');
+    const downloadSvgButton = document.getElementById('download-svg');
+    const outputSvg = document.getElementById('output-svg');
+    const spriteLayoutSelect = document.getElementById('sprite-layout');
+    const loopCountInput = document.getElementById('loop-count');
+    const previewContainer = document.getElementById('preview-container');
+
+    let spriteSheetDataURL = null;
+    let frameData = [];
+    let totalFrames = 0;
+    let frameWidth = 0;
+    let frameHeight = 0;
+
+    // Toggle Input Method
+    inputMethodRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        if (this.value === 'json') {
+          jsonUploadSection.style.display = 'block';
+          manualInputSection.style.display = 'none';
+        } else {
+          jsonUploadSection.style.display = 'none';
+          manualInputSection.style.display = 'block';
+        }
+      });
+    });
+
+    // Handle Sprite Sheet Upload
+    spriteSheetInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'image/png') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          spriteSheetDataURL = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please upload a valid PNG sprite sheet.');
+        spriteSheetInput.value = '';
+      }
+    });
+
+    // Handle JSON File Upload
+    jsonFileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/json') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const json = JSON.parse(e.target.result);
+            parseFrameDataFromJSON(json);
+          } catch (error) {
+            alert('Invalid JSON file.');
+            jsonFileInput.value = '';
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        alert('Please upload a valid JSON file.');
+        jsonFileInput.value = '';
+      }
+    });
+
+    // Parse Frame Data from JSON
+    function parseFrameDataFromJSON(json) {
+      // Aseprite JSON format parsing
+      if (!json.frames) {
+        alert('JSON file does not contain frame data.');
+        return;
+      }
+
+      // Convert frames object to array and sort by frame index
+      frameData = Object.entries(json.frames)
+        .sort((a, b) => {
+          const aMatch = a[0].match(/\d+/);
+          const bMatch = b[0].match(/\d+/);
+          const aIndex = aMatch ? parseInt(aMatch[0], 10) : 0;
+          const bIndex = bMatch ? parseInt(bMatch[0], 10) : 0;
+          return aIndex - bIndex;
+        })
+        .map(([key, frame]) => {
+          return {
+            filename: key,
+            frame: frame.frame, // {x, y, w, h}
+            duration: frame.duration // in milliseconds
+          };
+        });
+
+      totalFrames = frameData.length;
+      frameWidth = frameData[0].frame.w;
+      frameHeight = frameData[0].frame.h;
+
+      alert(`Successfully loaded ${totalFrames} frames from JSON.`);
+    }
+
+    // Generate SVG Function
+    generateSvgButton.addEventListener('click', function() {
+      if (!spriteSheetDataURL) {
+        alert('Please upload a sprite sheet PNG.');
+        return;
+      }
+
+      // Determine input method
+      let useJSON = false;
+      inputMethodRadios.forEach(radio => {
+        if (radio.checked && radio.value === 'json') {
+          useJSON = true;
+        }
+      });
+
+      if (useJSON) {
+        if (frameData.length === 0) {
+          alert('Please upload a valid JSON file with frame data.');
+          return;
+        }
+      } else {
+        // Manual Inputs
+        const manualFrameCount = parseInt(frameCountInput.value);
+        const manualFrameWidth = parseInt(frameWidthInput.value);
+        const manualFrameHeight = parseInt(frameHeightInput.value);
+        const manualFrameDurations = frameDurationsInput.value.split(',').map(d => parseInt(d.trim(), 10));
+
+        if (isNaN(manualFrameCount) || manualFrameCount < 1) {
+          alert('Please enter a valid number of frames.');
+          return;
+        }
+        if (isNaN(manualFrameWidth) || manualFrameWidth < 1) {
+          alert('Please enter a valid frame width.');
+          return;
+        }
+        if (isNaN(manualFrameHeight) || manualFrameHeight < 1) {
+          alert('Please enter a valid frame height.');
+          return;
+        }
+
+        if (manualFrameDurations.length !== manualFrameCount) {
+          alert(`Please enter exactly ${manualFrameCount} frame durations separated by commas.`);
+          return;
+        }
+
+        if (manualFrameDurations.some(d => isNaN(d) || d < 1)) {
+          alert('Please enter valid frame durations (in milliseconds).');
+          return;
+        }
+
+        // Generate frame data
+        frameData = [];
+        for (let i = 0; i < manualFrameCount; i++) {
+          frameData.push({
+            filename: `frame_${i}.png`,
+            frame: {
+              x: spriteLayoutSelect.value === 'horizontal' ? manualFrameWidth * i : 0,
+              y: spriteLayoutSelect.value === 'vertical' ? manualFrameHeight * i : 0,
+              w: manualFrameWidth,
+              h: manualFrameHeight
+            },
+            duration: manualFrameDurations[i]
+          });
+        }
+
+        totalFrames = manualFrameCount;
+        frameWidth = manualFrameWidth;
+        frameHeight = manualFrameHeight;
+      }
+
+      // Get scaling option
+      const scaling = scalingSelect.value;
+
+      // Get sprite sheet layout
+      const spriteLayout = spriteLayoutSelect.value;
+
+      // Get loop count
+      let loopCount = parseInt(loopCountInput.value);
+      if (isNaN(loopCount) || loopCount < 0) {
+        alert('Please enter a valid loop count (0 for infinite).');
+        return;
+      }
+      if (loopCount === 0) {
+        loopCount = 'indefinite';
+      }
+
+      // Generate cumulative start times for each frame
+      let cumulativeTime = 0;
+      const framesWithTimes = frameData.map(frame => {
+        const startTime = cumulativeTime / 1000; // in seconds
+        cumulativeTime += frame.duration;
+        return { ...frame, startTime };
+      });
+
+      // Calculate total duration
+      const totalDuration = cumulativeTime / 1000; // in seconds
+
+      // Generate 'keyTimes' array
+      const keyTimes = framesWithTimes.map(frame => (frame.startTime / totalDuration).toFixed(4)).join(';');
+
+      // Adjust calculations based on layout
+      let imageWidth, imageHeight, attributeName, framePositions;
+      if (spriteLayout === 'horizontal') {
+        imageWidth = frameWidth * totalFrames;
+        imageHeight = frameHeight;
+        attributeName = 'x';
+        framePositions = framesWithTimes.map(frame => -frame.frame.x).join(';');
+      } else {
+        imageWidth = frameWidth;
+        imageHeight = frameHeight * totalFrames;
+        attributeName = 'y';
+        framePositions = framesWithTimes.map(frame => -frame.frame.y).join(';');
+      }
+
+      // Create SVG content using template literals
+      let svgContent = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 ${frameWidth} ${frameHeight}"
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid meet"
+        overflow="hidden">
+      <!-- Define clipPath to ensure only one frame is visible -->
+      <defs>
+        <clipPath id="frame-clip">
+          <rect width="${frameWidth}" height="${frameHeight}" />
+        </clipPath>
+      </defs>
+
+      <!-- Add the sprite sheet image with clipPath applied -->
+      <image id="sprite" href="${spriteSheetDataURL}" width="${imageWidth}" height="${imageHeight}" clip-path="url(#frame-clip)"
+        style="${scaling === 'pixelated' ? 'image-rendering: pixelated;' : 'image-rendering: optimizeQuality;'}">
+        <!-- Generate animate tag for cycling through frames -->
+        <animate attributeName="${attributeName}"
+                values="${framePositions}"
+                keyTimes="${keyTimes}"
+                calcMode="discrete"
+                dur="${totalDuration}s"
+                repeatCount="${loopCount}" />
+      </image>
+    </svg>`;
+
+      // Trim any leading/trailing whitespace
+      svgContent = svgContent.trim();
+
+      // Output the SVG
+      outputSvg.value = svgContent;
+      compressSvgButton.disabled = false;
+      copySvgButton.disabled = false;
+      downloadSvgButton.disabled = false;
+
+      // Display the preview
+      previewContainer.innerHTML = svgContent;
+    });
+
+    // Compress SVG Function
+    compressSvgButton.addEventListener('click', function() {
+      let svgContent = outputSvg.value;
+
+      // Preserve href attributes and animate tags
+      const hrefMatches = [];
+      svgContent = svgContent.replace(/href="[^"]*"/g, function(match) {
+        hrefMatches.push(match);
+        return `___HREF_PLACEHOLDER_${hrefMatches.length - 1}___`;
+      });
+
+      const animateMatches = [];
+      svgContent = svgContent.replace(/<animate[\s\S]*?<\/animate>/g, function(match) {
+        animateMatches.push(match);
+        return `___ANIMATE_PLACEHOLDER_${animateMatches.length - 1}___`;
+      });
+
+      // Remove comments and unnecessary whitespace outside of quotes
+      svgContent = svgContent.replace(/>\s+</g, '><').trim();
+      svgContent = svgContent.replace(/<!--[\s\S]*?-->/g, '');
+
+      // Remove line breaks and tabs outside of quotes
+      svgContent = svgContent.replace(/[\r\n\t]+/g, '');
+
+      // Remove multiple spaces outside of quotes
+      svgContent = svgContent.replace(/ {2,}/g, ' ');
+
+      // Remove XML declarations and DOCTYPE
+      svgContent = svgContent.replace(/<\?xml[\s\S]*?\?>/gi, '');
+      svgContent = svgContent.replace(/<!DOCTYPE[^>]*>/gi, '');
+
+      // Restore href and animate attributes
+      svgContent = svgContent.replace(/___HREF_PLACEHOLDER_(\d+)___/g, function(match, index) {
+        return hrefMatches[index];
+      });
+
+      svgContent = svgContent.replace(/___ANIMATE_PLACEHOLDER_(\d+)___/g, function(match, index) {
+        return animateMatches[index];
+      });
+
+      outputSvg.value = svgContent;
+    });
+
+    // Copy SVG Function
+    copySvgButton.addEventListener('click', function() {
+      outputSvg.select();
+      outputSvg.setSelectionRange(0, 99999); // For mobile devices
+
+      document.execCommand('copy');
+      alert('SVG code copied to clipboard.');
+    });
+
+    // Download SVG Function
+    downloadSvgButton.addEventListener('click', function() {
+      const svgContent = outputSvg.value;
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'animated.svg';
+      link.click();
+    });
+
+  </script>
+
+</body>
+</html>
