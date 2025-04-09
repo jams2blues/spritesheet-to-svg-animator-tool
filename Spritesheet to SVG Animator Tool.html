@@ -1,6 +1,11 @@
 /*Developed by @jams2blues with love for the Tezos community
   File: spritesheet-to-svg-animator.html
   Summary: Spritesheet to SVG Animator Tool v2.0 with distinct upload areas per input method and a fully interactive Custom JSON Builder modal that provides granular per‑frame controls (including variable durations) plus a live animation preview.
+          Key changes:
+          • Automatic resolution detection in the builder for “Packed” spritesheets.
+          • Dual‑axis (<animate> for both “x” & “y”) for packed mode.
+          • Consolidated PNG input for the builder.
+          • Removed Advanced SVG Optimization.
 */
 <!DOCTYPE html>
 <html lang="en">
@@ -176,13 +181,12 @@
       border-radius: 4px;
       text-align: center;
     }
-    /* Modal-specific file upload for builder preview */
-    #builder-modal-sprite-upload {
-      margin-top: 10px;
-    }
+    /* We removed any extra redundant PNG input in builder modal per instructions */
   </style>
+
   <!--
-    IMPORTANT: Paste your minified omggif.min.js, pako.min.js, and UPNG.js here or inline them.
+    IMPORTANT: Insert your minified omggif.min.js, pako.min.js, and UPNG.js below.
+    (These libs remain unchanged; see summary below.)
   -->
   <script>
     "use strict";function GifWriter(r,e,t,n){var i=0,a=void 0===(n=void 0===n?{}:n).loop?null:n.loop,o=void 0===n.palette?null:n.palette;if(e<=0||t<=0||e>65535||t>65535)throw new Error("Width/Height invalid.");function f(r){var e=r.length;if(e<2||e>256||e&e-1)throw new Error("Invalid code/color length, must be power of 2 and 2 .. 256.");return e}r[i++]=71,r[i++]=73,r[i++]=70,r[i++]=56,r[i++]=57,r[i++]=97;var l=0,u=0;if(null!==o){for(var h=f(o);h>>=1;)++l;if(h=1<<l,--l,void 0!==n.background){if((u=n.background)>=h)throw new Error("Background index out of range.");if(0===u)throw new Error("Background index explicitly passed as 0.")}}if(r[i++]=255&e,r[i++]=e>>8&255,r[i++]=255&t,r[i++]=t>>8&255,r[i++]=(null!==o?128:0)|l,r[i++]=u,r[i++]=0,null!==o)for(var d=0,s=o.length;d<s;++d){var v=o[d];r[i++]=v>>16&255,r[i++]=v>>8&255,r[i++]=255&v}if(null!==a){if(a<0||a>65535)throw new Error("Loop count invalid.");r[i++]=33,r[i++]=255,r[i++]=11,r[i++]=78,r[i++]=69,r[i++]=84,r[i++]=83,r[i++]=67,r[i++]=65,r[i++]=80,r[i++]=69,r[i++]=50,r[i++]=46,r[i++]=48,r[i++]=3,r[i++]=1,r[i++]=255&a,r[i++]=a>>8&255,r[i++]=0}var c=!1;this.addFrame=function(e,t,n,a,l,u){if(!0===c&&(--i,c=!1),u=void 0===u?{}:u,e<0||t<0||e>65535||t>65535)throw new Error("x/y invalid.");if(n<=0||a<=0||n>65535||a>65535)throw new Error("Width/Height invalid.");if(l.length<n*a)throw new Error("Not enough pixels for the frame size.");var h=!0,d=u.palette;if(null==d&&(h=!1,d=o),null==d)throw new Error("Must supply either a local or global palette.");for(var s=f(d),v=0;s>>=1;)++v;s=1<<v;var w=void 0===u.delay?0:u.delay,p=void 0===u.disposal?0:u.disposal;if(p<0||p>3)throw new Error("Disposal out of range.");var g=!1,x=0;if(void 0!==u.transparent&&null!==u.transparent&&(g=!0,(x=u.transparent)<0||x>=s))throw new Error("Transparent color index.");if((0!==p||g||0!==w)&&(r[i++]=33,r[i++]=249,r[i++]=4,r[i++]=p<<2|(!0===g?1:0),r[i++]=255&w,r[i++]=w>>8&255,r[i++]=x,r[i++]=0),r[i++]=44,r[i++]=255&e,r[i++]=e>>8&255,r[i++]=255&t,r[i++]=t>>8&255,r[i++]=255&n,r[i++]=n>>8&255,r[i++]=255&a,r[i++]=a>>8&255,r[i++]=!0===h?128|v-1:0,!0===h)for(var k=0,b=d.length;k<b;++k){var E=d[k];r[i++]=E>>16&255,r[i++]=E>>8&255,r[i++]=255&E}return i=GifWriterOutputLZWCodeStream(r,i,v<2?2:v,l)},this.end=function(){return!1===c&&(r[i++]=59,c=!0),i},this.getOutputBuffer=function(){return r},this.setOutputBuffer=function(e){r=e},this.getOutputBufferPosition=function(){return i},this.setOutputBufferPosition=function(r){i=r}}function GifWriterOutputLZWCodeStream(r,e,t,n){r[e++]=t;var i=e++,a=1<<t,o=a-1,f=a+1,l=f+1,u=t+1,h=0,d=0;function s(t){for(;h>=t;)r[e++]=255&d,d>>=8,h-=8,e===i+256&&(r[i]=255,i=e++)}function v(r){d|=r<<h,h+=u,s(8)}var c=n[0]&o,w={};v(a);for(var p=1,g=n.length;p<g;++p){var x=n[p]&o,k=c<<8|x,b=w[k];if(void 0===b){for(d|=c<<h,h+=u;h>=8;)r[e++]=255&d,d>>=8,h-=8,e===i+256&&(r[i]=255,i=e++);4096===l?(v(a),l=f+1,u=t+1,w={}):(l>=1<<u&&++u,w[k]=l++),c=x}else c=b}return v(c),v(f),s(1),i+1===e?r[i]=0:(r[i]=e-i-1,r[e++]=0),e}function GifReader(r){var e=0;if(71!==r[e++]||73!==r[e++]||70!==r[e++]||56!==r[e++]||56!=(r[e++]+1&253)||97!==r[e++])throw new Error("Invalid GIF 87a/89a header.");var t=r[e++]|r[e++]<<8,n=r[e++]|r[e++]<<8,i=r[e++],a=i>>7,o=1<<(7&i)+1;r[e++];r[e++];var f=null,l=null;a&&(f=e,l=o,e+=3*o);var u=!0,h=[],d=0,s=null,v=0,c=null;for(this.width=t,this.height=n;u&&e<r.length;)switch(r[e++]){case 33:switch(r[e++]){case 255:if(11!==r[e]||78==r[e+1]&&69==r[e+2]&&84==r[e+3]&&83==r[e+4]&&67==r[e+5]&&65==r[e+6]&&80==r[e+7]&&69==r[e+8]&&50==r[e+9]&&46==r[e+10]&&48==r[e+11]&&3==r[e+12]&&1==r[e+13]&&0==r[e+16])e+=14,c=r[e++]|r[e++]<<8,e++;else for(e+=12;;){if(!((_=r[e++])>=0))throw Error("Invalid block size");if(0===_)break;e+=_}break;case 249:if(4!==r[e++]||0!==r[e+4])throw new Error("Invalid graphics extension block.");var w=r[e++];d=r[e++]|r[e++]<<8,s=r[e++],0==(1&w)&&(s=null),v=w>>2&7,e++;break;case 254:for(;;){if(!((_=r[e++])>=0))throw Error("Invalid block size");if(0===_)break;e+=_}break;default:throw new Error("Unknown graphic control label: 0x"+r[e-1].toString(16))}break;case 44:var p=r[e++]|r[e++]<<8,g=r[e++]|r[e++]<<8,x=r[e++]|r[e++]<<8,k=r[e++]|r[e++]<<8,b=r[e++],E=b>>6&1,m=1<<(7&b)+1,y=f,G=l,I=!1;if(b>>7){I=!0;y=e,G=m,e+=3*m}var W=e;for(e++;;){var _;if(!((_=r[e++])>=0))throw Error("Invalid block size");if(0===_)break;e+=_}h.push({x:p,y:g,width:x,height:k,has_local_palette:I,palette_offset:y,palette_size:G,data_offset:W,data_length:e-W,transparent_index:s,interlaced:!!E,delay:d,disposal:v});break;case 59:u=!1;break;default:throw new Error("Unknown gif block: 0x"+r[e-1].toString(16))}this.numFrames=function(){return h.length},this.loopCount=function(){return c},this.frameInfo=function(r){if(r<0||r>=h.length)throw new Error("Frame index out of range.");return h[r]},this.decodeAndBlitFrameBGRA=function(e,n){var i=this.frameInfo(e),a=i.width*i.height,o=new Uint8Array(a);GifReaderLZWOutputIndexStream(r,i.data_offset,o,a);var f=i.palette_offset,l=i.transparent_index;null===l&&(l=256);var u=i.width,h=t-u,d=u,s=4*(i.y*t+i.x),v=4*((i.y+i.height)*t+i.x),c=s,w=4*h;!0===i.interlaced&&(w+=4*t*7);for(var p=8,g=0,x=o.length;g<x;++g){var k=o[g];if(0===d&&(d=u,(c+=w)>=v&&(w=4*h+4*t*(p-1),c=s+(u+h)*(p<<1),p>>=1)),k===l)c+=4;else{var b=r[f+3*k],E=r[f+3*k+1],m=r[f+3*k+2];n[c++]=m,n[c++]=E,n[c++]=b,n[c++]=255}--d}},this.decodeAndBlitFrameRGBA=function(e,n){var i=this.frameInfo(e),a=i.width*i.height,o=new Uint8Array(a);GifReaderLZWOutputIndexStream(r,i.data_offset,o,a);var f=i.palette_offset,l=i.transparent_index;null===l&&(l=256);var u=i.width,h=t-u,d=u,s=4*(i.y*t+i.x),v=4*((i.y+i.height)*t+i.x),c=s,w=4*h;!0===i.interlaced&&(w+=4*t*7);for(var p=8,g=0,x=o.length;g<x;++g){var k=o[g];if(0===d&&(d=u,(c+=w)>=v&&(w=4*h+4*t*(p-1),c=s+(u+h)*(p<<1),p>>=1)),k===l)c+=4;else{var b=r[f+3*k],E=r[f+3*k+1],m=r[f+3*k+2];n[c++]=b,n[c++]=E,n[c++]=m,n[c++]=255}--d}}}function GifReaderLZWOutputIndexStream(r,e,t,n){for(var i=r[e++],a=1<<i,o=a+1,f=o+1,l=i+1,u=(1<<l)-1,h=0,d=0,s=0,v=r[e++],c=new Int32Array(4096),w=null;;){for(;h<16&&0!==v;)d|=r[e++]<<h,h+=8,1===v?v=r[e++]:--v;if(h<l)break;var p=d&u;if(d>>=l,h-=l,p!==a){if(p===o)break;for(var g=p<f?p:w,x=0,k=g;k>a;)k=c[k]>>8,++x;var b=k;if(s+x+(g!==p?1:0)>n)return void console.log("Warning, gif stream longer than expected.");t[s++]=b;var E=s+=x;for(g!==p&&(t[s++]=b),k=g;x--;)k=c[k],t[--E]=255&k,k>>=8;null!==w&&f<4096&&(c[f++]=w<<8|b,f>=u+1&&l<12&&(++l,u=u<<1|1)),w=p}else f=o+1,u=(1<<(l=i+1))-1,w=null}return s!==n&&console.log("Warning, gif stream shorter than expected."),t}try{exports.GifWriter=GifWriter,exports.GifReader=GifReader}catch(r){}
@@ -206,7 +210,7 @@
         <li>Adjust animation settings (scaling, layout, loop count, total duration, and compression level).</li>
         <li>Generate the SVG to see a live preview; then copy or download the final code or Data URI.</li>
       </ol>
-      <p><strong>Tip:</strong> Always test your final SVG across different browsers and devices before deploying on-chain.</p>
+      <p><strong>Tip:</strong> Always test your final SVG across different browsers and devices before deploying on‑chain.</p>
     </div>
 
     <!-- Input Method Section -->
@@ -245,12 +249,10 @@
       <!-- Custom JSON Builder Inputs -->
       <div class="builder-inputs" id="builder-section">
         <h3>Custom JSON Builder</h3>
+        <!-- Using ONE PNG input for builder; this one is shared -->
         <label>Sprite Sheet PNG:</label>
         <input type="file" id="builder-sprite-png" accept="image/png">
-        <p>You can upload a separate PNG for building your JSON preview if desired.</p>
-        <label for="builder-modal-sprite-upload">Upload PNG for Builder Preview:</label>
-        <input type="file" id="builder-modal-sprite-upload" accept="image/png">
-        <p>Use the builder form for per‑frame properties (x, y, w, h, duration). Live preview is shown in the modal.</p>
+        <p>This PNG will be used for building your JSON preview.</p>
         <button id="open-builder-modal">Open Builder Form</button>
         <div id="custom-json-preview">(No JSON built yet)</div>
       </div>
@@ -260,7 +262,7 @@
       <select id="sprite-layout">
         <option value="horizontal" selected>Horizontal</option>
         <option value="vertical">Vertical</option>
-        <option value="stacked">Stacked</option>
+        <option value="packed">Packed</option>
       </select>
     </div>
 
@@ -290,7 +292,7 @@
     <div class="section preview-section">
       <h2>Live Animation Preview</h2>
       <div class="preview-container" id="preview-container">
-        <!-- Generated SVG preview will be inserted here -->
+        <!-- Generated SVG preview will appear here -->
       </div>
     </div>
 
@@ -321,26 +323,24 @@
       <label for="builder-frame-height">Frame Height (px):</label>
       <input type="number" id="builder-frame-height" min="1" value="100">
       <label for="builder-frame-duration">Default Frame Duration (ms):</label>
-      <input type="number" id="builder-frame-duration" min="1" value="500">
+      <input type="number" id="builder-frame-duration" min="1" value="150">
       <button id="build-json">Build Frame Table</button>
       <div id="builder-frames-list"></div>
       <h4>Live Raw JSON Preview</h4>
       <textarea id="builder-json-preview" rows="6" style="width:100%;" readonly></textarea>
       <div id="builder-modal-preview" style="margin-top: 15px; background: #fff; padding: 10px; border-radius: 4px; text-align: center;">
-        <!-- Live animation preview based on the builder JSON will appear here -->
+        <!-- Live animation preview will appear here -->
       </div>
       <div style="text-align:right; margin-top:10px;">
         <button id="apply-json">Apply JSON to Tool</button>
       </div>
-      <label for="builder-modal-sprite-upload">Upload Sprite Sheet PNG for Builder Preview:</label>
-      <input type="file" id="builder-modal-sprite-upload" accept="image/png">
     </div>
   </div>
 
   <!-- Main Script -->
   <script type="module">
     document.addEventListener('DOMContentLoaded', () => {
-      // --- Global Variables and Element References ---
+      // === Global DOM References ===
       const inputMethodRadios = document.getElementsByName("input-method");
       const jsonSection = document.getElementById("json-section");
       const manualSection = document.getElementById("manual-section");
@@ -355,13 +355,13 @@
       const manualFrameDurations = document.getElementById("manual-frame-durations");
 
       const builderSpritePNG = document.getElementById("builder-sprite-png");
+
       const openBuilderModal = document.getElementById("open-builder-modal");
       const jsonBuilderModal = document.getElementById("json-builder-modal");
       const closeBuilderModal = document.getElementById("close-builder-modal");
       const buildJsonBtn = document.getElementById("build-json");
       const builderJSONPreview = document.getElementById("builder-json-preview");
       const applyJSONBtn = document.getElementById("apply-json");
-      const builderModalSpriteUpload = document.getElementById("builder-modal-sprite-upload");
 
       const spriteLayoutSel = document.getElementById("sprite-layout");
       const scalingSel = document.getElementById("scaling");
@@ -380,217 +380,136 @@
       const updateFramesBtn = document.getElementById("update-frames");
       const resetFormBtn = document.getElementById("reset-form");
 
-      // --- State Variables ---
-      let mainSpriteData = null;   // For JSON/Manual methods
-      let builderSpriteData = null; // For custom builder preview
-      let frameData = [];
+      // === Global State ===
+      let mainSpriteData = null;   // Shared for all methods
+      let frameData = [];          // Array of {frame:{x,y,w,h}, duration}
       let totalFrames = 0, frameW = 0, frameH = 0;
 
-      // --- Toggle Input Method Sections ---
+      // === Toggle Input Method Sections ===
       function refreshInputMethodUI() {
-        let selected = "json";
-        for (let i = 0; i < inputMethodRadios.length; i++) {
-          if (inputMethodRadios[i].checked) {
-            selected = inputMethodRadios[i].value;
-            break;
-          }
-        }
-        jsonSection.style.display = (selected === "json") ? "block" : "none";
-        manualSection.style.display = (selected === "manual") ? "block" : "none";
-        builderSection.style.display = (selected === "builder") ? "block" : "none";
+        const sel = Array.from(inputMethodRadios).find(r => r.checked).value;
+        jsonSection.style.display = (sel === "json") ? "block" : "none";
+        manualSection.style.display = (sel === "manual") ? "block" : "none";
+        builderSection.style.display = (sel === "builder") ? "block" : "none";
       }
-      for (let i = 0; i < inputMethodRadios.length; i++) {
-        inputMethodRadios[i].addEventListener("change", refreshInputMethodUI);
-      }
+      Array.from(inputMethodRadios).forEach(r => r.addEventListener("change", refreshInputMethodUI));
       refreshInputMethodUI();
 
-      // --- PNG Uploads for Each Input Method ---
-      jsonSpritePNG.addEventListener("change", function(e) {
-        const file = e.target.files[0];
+      // === PNG Uploads ===
+      function setPNG(inputEl) {
+        const file = inputEl.files[0];
         if (file && file.type === "image/png") {
-          const r = new FileReader();
-          r.onload = ev => { mainSpriteData = ev.target.result; };
-          r.readAsDataURL(file);
+          const reader = new FileReader();
+          reader.onload = ev => { mainSpriteData = ev.target.result; };
+          reader.readAsDataURL(file);
         } else {
-          alert("Please upload a valid PNG for the JSON method.");
-          e.target.value = "";
+          alert("Upload a valid PNG file.");
+          inputEl.value = "";
         }
-      });
-      manualSpritePNG.addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (file && file.type === "image/png") {
-          const r = new FileReader();
-          r.onload = ev => { mainSpriteData = ev.target.result; };
-          r.readAsDataURL(file);
-        } else {
-          alert("Please upload a valid PNG for the manual method.");
-          e.target.value = "";
-        }
-      });
-      builderSpritePNG.addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (file && file.type === "image/png") {
-          const r = new FileReader();
-          r.onload = ev => { mainSpriteData = ev.target.result; };
-          r.readAsDataURL(file);
-        } else {
-          alert("Please upload a valid PNG for the custom builder method.");
-          e.target.value = "";
-        }
-      });
-      // Builder Modal PNG for live preview in the builder
-      builderModalSpriteUpload.addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (file && file.type === "image/png") {
-          const r = new FileReader();
-          r.onload = ev => {
-            builderSpriteData = ev.target.result;
-            updateBuilderJSON();
-          };
-          r.readAsDataURL(file);
-        } else {
-          alert("Please upload a valid PNG for builder preview.");
-          e.target.value = "";
-        }
-      });
+      }
+      jsonSpritePNG.addEventListener("change", e => setPNG(e.target));
+      manualSpritePNG.addEventListener("change", e => setPNG(e.target));
+      builderSpritePNG.addEventListener("change", e => setPNG(e.target));
 
-      // --- Aseprite JSON Handling ---
-      document.getElementById("aseprite-json").addEventListener("change", function(e) {
+      // === Aseprite JSON Handling ===
+      document.getElementById("aseprite-json").addEventListener("change", e => {
         const file = e.target.files[0];
         if (file && file.type === "application/json") {
-          const r = new FileReader();
-          r.onload = ev => {
+          const reader = new FileReader();
+          reader.onload = ev => {
             try {
-              const parsed = JSON.parse(ev.target.result);
-              parseFrameDataFromJSON(parsed);
+              const json = JSON.parse(ev.target.result);
+              parseFrameDataFromJSON(json);
             } catch (err) {
-              alert("Invalid JSON file. Check content.");
+              alert("Invalid JSON file.");
             }
           };
-          r.readAsText(file);
+          reader.readAsText(file);
         } else {
-          alert("Please upload a valid .json file for Aseprite data.");
+          alert("Upload a valid JSON file.");
           e.target.value = "";
         }
       });
       function parseFrameDataFromJSON(json) {
         if (!json.frames) {
-          alert("JSON does not contain a 'frames' object.");
+          alert("JSON missing 'frames' property.");
           return;
         }
-        // Filter out duplicate frame entries based on frame coordinates.
         const seen = new Set();
-        frameData = Object.entries(json.frames)
-          .sort((a, b) => {
-            const aN = parseInt(a[0].match(/\d+/) || ["0"], 10);
-            const bN = parseInt(b[0].match(/\d+/) || ["0"], 10);
-            return aN - bN;
-          })
-          .filter(entry => {
-            const key = JSON.stringify(entry[1].frame);
-            if (seen.has(key)) {
-              return false;
-            }
+        frameData = Object.values(json.frames)
+          .filter(f => {
+            const key = JSON.stringify(f.frame);
+            if (seen.has(key)) return false;
             seen.add(key);
             return true;
           })
-          .map(entry => {
-            return {
-              filename: entry[0],
-              frame: entry[1].frame,
-              duration: entry[1].duration
-            };
-          });
+          .map(f => ({ frame: f.frame, duration: f.duration || 100 }));
         totalFrames = frameData.length;
-        if (totalFrames > 0) {
-          frameW = frameData[0].frame.w;
-          frameH = frameData[0].frame.h;
-        }
-        alert("Successfully loaded " + totalFrames + " frames from JSON!");
+        if (totalFrames > 0) { frameW = frameData[0].frame.w; frameH = frameData[0].frame.h; }
+        alert(`Loaded ${totalFrames} frames from JSON!`);
       }
 
-      // --- "Update Frames" for Manual Inputs ---
-      updateFramesBtn.addEventListener("click", function() {
-        const selected = getSelectedMethod();
-        if (selected === "manual") {
-          const c = parseInt(document.getElementById("manual-frame-count").value) || 0;
+      // === Manual Frame Update ===
+      updateFramesBtn.addEventListener("click", () => {
+        const method = getSelectedMethod();
+        if (method === "manual") {
+          const count = parseInt(document.getElementById("manual-frame-count").value) || 0;
           const w = parseInt(document.getElementById("manual-frame-width").value) || 0;
           const h = parseInt(document.getElementById("manual-frame-height").value) || 0;
-          const ds = document.getElementById("manual-frame-durations").value.split(",").map(d => parseInt(d.trim(), 10));
-          if (ds.length !== c) {
-            alert("Mismatch between number of frames and durations!");
-            return;
-          }
+          const durations = document.getElementById("manual-frame-durations").value.split(",").map(d => parseInt(d.trim(), 10));
+          if (durations.length !== count) { alert("Frame count and durations mismatch."); return; }
           frameData = [];
           const layout = spriteLayoutSel.value;
-          for (let i = 0; i < c; i++) {
+          for (let i = 0; i < count; i++) {
             let xPos = 0, yPos = 0;
-            if (layout === "horizontal") {
-              xPos = w * i; yPos = 0;
-            } else if (layout === "vertical") {
-              xPos = 0; yPos = h * i;
-            } else {
-              const cols = Math.ceil(Math.sqrt(c));
-              const col = i % cols;
-              const row = Math.floor(i / cols);
-              xPos = col * w; yPos = row * h;
+            if (layout === "horizontal") { xPos = w * i; yPos = 0; }
+            else if (layout === "vertical") { xPos = 0; yPos = h * i; }
+            else if (layout === "packed") {
+              const cols = Math.ceil(Math.sqrt(count));
+              xPos = (i % cols) * w;
+              yPos = Math.floor(i / cols) * h;
             }
-            frameData.push({
-              filename: "frame_" + i + ".png",
-              frame: { x: xPos, y: yPos, w: w, h: h },
-              duration: ds[i]
-            });
+            frameData.push({ frame: { x: xPos, y: yPos, w: w, h: h }, duration: durations[i] });
           }
-          totalFrames = c; frameW = w; frameH = h;
+          totalFrames = count; frameW = w; frameH = h;
           alert("Manual frames updated!");
         } else {
-          alert("Frame data is from JSON or builder. No manual update needed.");
+          alert("Update Frames is only for Manual inputs.");
         }
       });
 
-      // --- "Reset Form" ---
-      resetFormBtn.addEventListener("click", function() {
-        location.reload();
-      });
+      // === Reset Form ===
+      resetFormBtn.addEventListener("click", () => { location.reload(); });
 
-      // --- JSON Builder Modal Handling ---
-      openBuilderModal.addEventListener("click", function() {
-        jsonBuilderModal.style.display = "block";
-        buildBuilderFramesTable();
-      });
-      closeBuilderModal.addEventListener("click", function() {
-        jsonBuilderModal.style.display = "none";
-      });
-      window.addEventListener("click", function(e) {
-        if (e.target === jsonBuilderModal) {
-          jsonBuilderModal.style.display = "none";
-        }
-      });
+      // === JSON Builder Modal ===
+      openBuilderModal.addEventListener("click", () => { jsonBuilderModal.style.display = "block"; buildBuilderFramesTable(); });
+      closeBuilderModal.addEventListener("click", () => { jsonBuilderModal.style.display = "none"; });
+      window.addEventListener("click", e => { if (e.target === jsonBuilderModal) jsonBuilderModal.style.display = "none"; });
       buildJsonBtn.addEventListener("click", buildBuilderFramesTable);
-      applyJSONBtn.addEventListener("click", function() {
+      applyJSONBtn.addEventListener("click", () => {
         try {
-          const parsed = JSON.parse(builderJSONPreview.value);
-          parseFrameDataFromJSON(parsed);
+          const json = JSON.parse(builderJSONPreview.value);
+          parseFrameDataFromJSON(json);
           alert("Custom JSON applied.");
           jsonBuilderModal.style.display = "none";
         } catch (err) {
-          alert("JSON parse error in builder preview.");
+          alert("Builder JSON parse error.");
         }
       });
 
       function buildBuilderFramesTable() {
         const count = parseInt(document.getElementById("builder-frame-count").value) || 0;
-        const builderFrameWidth = parseInt(document.getElementById("builder-frame-width").value) || 100;
-        const builderFrameHeight = parseInt(document.getElementById("builder-frame-height").value) || 100;
-        const defaultDuration = parseInt(document.getElementById("builder-frame-duration").value) || 500;
+        const bW = parseInt(document.getElementById("builder-frame-width").value) || 100;
+        const bH = parseInt(document.getElementById("builder-frame-height").value) || 100;
+        const defDur = parseInt(document.getElementById("builder-frame-duration").value) || 150;
         const layout = spriteLayoutSel.value;
-        const tableContainer = document.getElementById("builder-frames-list");
-        tableContainer.innerHTML = "";
+        const container = document.getElementById("builder-frames-list");
+        container.innerHTML = "";
         const table = document.createElement("table");
         const header = document.createElement("tr");
-        ["Frame", "X", "Y", "W", "H", "Duration(ms)"].forEach(txt => {
+        ["Frame", "X", "Y", "W", "H", "Duration(ms)"].forEach(text => {
           const th = document.createElement("th");
-          th.textContent = txt;
+          th.textContent = text;
           header.appendChild(th);
         });
         table.appendChild(header);
@@ -598,40 +517,33 @@
           const tr = document.createElement("tr");
           tr.id = "frame-row-" + i;
           let defX = 0, defY = 0;
-          if (layout === "horizontal") {
-            defX = builderFrameWidth * i;
-            defY = 0;
-          } else if (layout === "vertical") {
-            defX = 0;
-            defY = builderFrameHeight * i;
-          } else if (layout === "stacked") {
+          if (layout === "horizontal") { defX = bW * i; defY = 0; }
+          else if (layout === "vertical") { defX = 0; defY = bH * i; }
+          else if (layout === "packed") {
             const cols = Math.ceil(Math.sqrt(count));
-            defX = (i % cols) * builderFrameWidth;
-            defY = Math.floor(i / cols) * builderFrameHeight;
+            defX = (i % cols) * bW;
+            defY = Math.floor(i / cols) * bH;
           }
-          const defaultValues = [i, defX, defY, builderFrameWidth, builderFrameHeight, defaultDuration];
-          defaultValues.forEach((val, idx) => {
+          const defaults = [i, defX, defY, bW, bH, defDur];
+          defaults.forEach((val, idx) => {
             const td = document.createElement("td");
-            const input = document.createElement("input");
-            input.type = "number";
-            input.value = val;
-            input.style.width = "80px";
-            if (idx === 0) {
-              input.disabled = true;
-            } else {
-              input.addEventListener("input", updateBuilderJSON);
-            }
-            if (idx === 1) input.classList.add("frame-x");
-            if (idx === 2) input.classList.add("frame-y");
-            if (idx === 3) input.classList.add("frame-w");
-            if (idx === 4) input.classList.add("frame-h");
-            if (idx === 5) input.classList.add("frame-duration");
-            td.appendChild(input);
+            const inp = document.createElement("input");
+            inp.type = "number";
+            inp.value = val;
+            inp.style.width = "80px";
+            if (idx === 0) inp.disabled = true;
+            else inp.addEventListener("input", updateBuilderJSON);
+            if (idx === 1) inp.classList.add("frame-x");
+            if (idx === 2) inp.classList.add("frame-y");
+            if (idx === 3) inp.classList.add("frame-w");
+            if (idx === 4) inp.classList.add("frame-h");
+            if (idx === 5) inp.classList.add("frame-duration");
+            td.appendChild(inp);
             tr.appendChild(td);
           });
           table.appendChild(tr);
         }
-        tableContainer.appendChild(table);
+        container.appendChild(table);
         updateBuilderJSON();
       }
 
@@ -645,11 +557,8 @@
           const y = parseInt(row.querySelector(".frame-y").value) || 0;
           const w = parseInt(row.querySelector(".frame-w").value) || 0;
           const h = parseInt(row.querySelector(".frame-h").value) || 0;
-          const dur = parseInt(row.querySelector(".frame-duration").value) || 500;
-          framesObj["frame_" + i + ".png"] = {
-            frame: { x: x, y: y, w: w, h: h },
-            duration: dur
-          };
+          const dur = parseInt(row.querySelector(".frame-duration").value) || 150;
+          framesObj["frame_" + i + ".png"] = { frame: { x, y, w, h }, duration: dur };
         }
         const customJSON = { frames: framesObj };
         builderJSONPreview.value = JSON.stringify(customJSON, null, 2);
@@ -658,192 +567,192 @@
 
       function livePreviewBuilder(jsonObj) {
         const previewDiv = document.getElementById("builder-modal-preview");
-        let spriteSrc = builderSpriteData || mainSpriteData;
-        if (!spriteSrc) {
-          previewDiv.innerHTML = "Upload a sprite sheet PNG for preview.";
-          return;
-        }
+        if (!mainSpriteData) { previewDiv.textContent = "Upload a sprite sheet PNG for preview."; return; }
+        if (!jsonObj || !jsonObj.frames || Object.keys(jsonObj.frames).length === 0) { previewDiv.textContent = "No frame data available."; return; }
         const frameKeys = Object.keys(jsonObj.frames);
-        if (frameKeys.length === 0) {
-          previewDiv.innerHTML = "No frame data available.";
-          return;
-        }
-        // Automatically calculate grid layout for a square-packed preview.
-        const metaImage = new Image();
-        metaImage.onload = function() {
+        // Auto-detect resolution using the uploaded PNG.
+        const img = new Image();
+        img.onload = () => {
           const count = frameKeys.length;
+          // Here we calculate grid dimensions. Assume “packed” means a grid:
           const cols = Math.ceil(Math.sqrt(count));
           const rows = Math.ceil(count / cols);
-          // Use the uploaded image dimensions to determine frame dimensions.
-          const imgWidth = metaImage.width;
-          const imgHeight = metaImage.height;
-          const frameW = Math.floor(imgWidth / cols);
-          const frameH = Math.floor(imgHeight / rows);
-          const positions = [];
-          // Compute x-offsets (row-major order) for animation.
+          const frameWidth = Math.floor(img.width / cols);
+          const frameHeight = Math.floor(img.height / rows);
+          // Now, for each frame (based on the builder JSON) we override with detected sizes if necessary.
+          // (For simplicity, we use the calculated frameWidth/frameHeight instead of builder inputs if the PNG is square.)
+          let xs = [], ys = [];
           for (let i = 0; i < count; i++) {
-            const col = i % cols;
-            positions.push(-col * frameW);
+            const col = i % cols, row = Math.floor(i / cols);
+            xs.push(-col * frameWidth);
+            ys.push(-row * frameHeight);
           }
-          positions.push(positions[0]);
-          let totalDur = frameKeys.reduce((acc, key) => acc + (jsonObj.frames[key].duration || 100), 0);
-          let cum = 0;
-          const keyTimesArr = [];
+          xs.push(xs[0]); ys.push(ys[0]);
+          let totalDur = frameKeys.reduce((sum, key) => sum + (jsonObj.frames[key].duration || 150), 0);
+          let acc = 0, keyTimes = [];
           for (let i = 0; i < count; i++) {
-            keyTimesArr.push((cum / totalDur).toFixed(4));
-            cum += jsonObj.frames[frameKeys[i]].duration || 100;
+            keyTimes.push((acc / totalDur).toFixed(4));
+            acc += jsonObj.frames[frameKeys[i]].duration || 150;
           }
-          keyTimesArr.push("1.0000");
+          keyTimes.push("1.0000");
           const svgPreview = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${frameW} ${frameH}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" overflow="hidden">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${frameWidth} ${frameHeight}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" overflow="hidden">
   <defs>
     <clipPath id="preview-clip">
-      <rect width="${frameW}" height="${frameH}" />
+      <rect width="${frameWidth}" height="${frameHeight}" />
     </clipPath>
   </defs>
-  <image href="${spriteSrc}" width="${frameW * cols}" height="${frameH * rows}" clip-path="url(#preview-clip)" style="image-rendering: pixelated;">
-    <animate attributeName="x"
-             values="${positions.join(";")}"
-             keyTimes="${keyTimesArr.join(";")}"
-             calcMode="discrete"
-             dur="${(totalDur / 1000)}s"
-             repeatCount="indefinite"/>
+  <image href="${mainSpriteData}" width="${frameWidth * cols}" height="${frameHeight * rows}" clip-path="url(#preview-clip)" style="image-rendering: pixelated;">
+    <animate attributeName="x" values="${xs.join(';')}" keyTimes="${keyTimes.join(';')}" calcMode="discrete" dur="${(totalDur/1000)}s" repeatCount="indefinite"/>
+    <animate attributeName="y" values="${ys.join(';')}" keyTimes="${keyTimes.join(';')}" calcMode="discrete" dur="${(totalDur/1000)}s" repeatCount="indefinite"/>
   </image>
-</svg>`;
+</svg>
+          `;
           previewDiv.innerHTML = svgPreview.trim();
         };
-        metaImage.src = spriteSrc;
+        img.src = mainSpriteData;
       }
 
-      // --- Global Helper: Get Selected Input Method ---
+      // === Global Helper: Get Selected Input Method ===
       function getSelectedMethod() {
-        for (let i = 0; i < inputMethodRadios.length; i++) {
-          if (inputMethodRadios[i].checked) return inputMethodRadios[i].value;
-        }
-        return "json";
+        return Array.from(inputMethodRadios).find(r => r.checked).value;
       }
 
-      // --- "Generate SVG" for Main Tool (JSON/Manual) ---
-      generateSVGBtn.addEventListener("click", function(){
-        if (!mainSpriteData) {
-          alert("No sprite sheet PNG loaded!");
-          return;
-        }
-        if (frameData.length < 1) {
-          alert("No frame data found. Upload or define frames first.");
-          return;
-        }
-        const rawLC = parseInt(loopCountInput.value) || 0;
-        const loopCount = (rawLC === 0) ? "indefinite" : rawLC;
-        let cum = 0;
-        const framesWithTimes = frameData.map(obj => {
-          let st = cum; cum += obj.duration;
-          return { ...obj, startTime: st };
-        });
-        let totalDurSec = cum / 1000;
-        if (totalDurSec <= 0) totalDurSec = 0.1;
-        const keyTimes = framesWithTimes.map(f => (f.startTime / cum).toFixed(4));
-        keyTimes.push("1.0000");
-        const keyTimesString = keyTimes.join(";");
+      // === "Generate SVG" for Main Tool (JSON/Manual) ===
+      generateSVGBtn.addEventListener("click", () => {
+        if (!mainSpriteData) { alert("No sprite sheet PNG loaded!"); return; }
+        if (frameData.length < 1) { alert("No frame data found. Upload/define frames first."); return; }
+        let total = frameData.reduce((sum, f) => sum + f.duration, 0);
+        let acc = 0;
+        // For horizontal/vertical, use simple x or y offsets.
         const layout = spriteLayoutSel.value;
-        let iWidth, iHeight, attrName, positions;
+        let xs = [], ys = [];
         if (layout === "horizontal") {
-          iWidth = frameData[0].frame.w * frameData.length;
-          iHeight = frameData[0].frame.h;
-          attrName = "x";
-          positions = framesWithTimes.map(f => -f.frame.x);
+          xs = frameData.map(f => -f.frame.x);
+          ys = [0];
         } else if (layout === "vertical") {
-          iWidth = frameData[0].frame.w;
-          iHeight = frameData[0].frame.h * frameData.length;
-          attrName = "y";
-          positions = framesWithTimes.map(f => -f.frame.y);
-        } else {
-          const c = frameData.length;
-          const w = frameData[0].frame.w;
-          const h = frameData[0].frame.h;
-          const cols = Math.ceil(Math.sqrt(c));
-          iWidth = w * cols;
-          iHeight = h * Math.ceil(c / cols);
-          attrName = "x";
-          positions = framesWithTimes.map((f, i) => {
+          xs = [0];
+          ys = frameData.map(f => -f.frame.y);
+        } else { // Packed mode
+          // Use the builder calculations based on PNG dimension if available.
+          const cols = Math.ceil(Math.sqrt(frameData.length));
+          frameData.forEach((f, i) => {
             const col = i % cols;
-            return -(col * w);
+            const row = Math.floor(i / cols);
+            xs.push(-col * f.frame.w);
+            ys.push(-row * f.frame.h);
           });
         }
-        positions.push(positions[0]);
-        const valString = positions.join(";");
-        const scal = scalingSel.value;
-        const rendStyle = (scal === "pixelated") ? "image-rendering: pixelated;" : "image-rendering: optimizeQuality;";
-        const svgContent = `
-<svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 ${frameData[0].frame.w} ${frameData[0].frame.h}"
-     width="100%" height="100%"
-     preserveAspectRatio="xMidYMid meet"
-     overflow="hidden">
+        xs.push(xs[0]);
+        ys.push(ys[0]);
+        const keyTimes = [];
+        acc = 0;
+        for (let f of frameData) {
+          keyTimes.push((acc / total).toFixed(4));
+          acc += f.duration;
+        }
+        keyTimes.push("1.0000");
+        let svgContent;
+        if (layout !== "packed") {
+          const attr = layout === "horizontal" ? "x" : "y";
+          svgContent = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${frameData[0].frame.w} ${frameData[0].frame.h}" preserveAspectRatio="xMidYMid meet" overflow="hidden">
   <defs>
     <clipPath id="frame-clip">
       <rect width="${frameData[0].frame.w}" height="${frameData[0].frame.h}" />
     </clipPath>
   </defs>
-  <image href="${mainSpriteData}" width="${iWidth}" height="${iHeight}" clip-path="url(#frame-clip)"
-         style="${rendStyle}">
-    <animate attributeName="${attrName}"
-             values="${valString}"
-             keyTimes="${keyTimesString}"
-             calcMode="discrete"
-             dur="${totalDurSec}s"
-             repeatCount="${loopCount}"/>
+  <image href="${mainSpriteData}" width="${frameData[0].frame.w * frameData.length}" height="${frameData[0].frame.h}" clip-path="url(#frame-clip)" style="image-rendering: pixelated;">
+    <animate attributeName="${attr}" values="${(attr==='x'? xs.join(';'): ys.join(';'))}" keyTimes="${keyTimes.join(';')}" calcMode="discrete" dur="${(total/1000)}s" repeatCount="${(+loopCountInput.value===0)?'indefinite':loopCountInput.value}"/>
   </image>
-</svg>`.trim();
+</svg>
+          `.trim();
+        } else {
+          // For packed, use dual animate elements based on calculated grid.
+          // For resolution we use the builder preview auto‑detection (if PNG loaded)
+          const img = new Image();
+          img.onload = () => {
+            const cols = Math.ceil(Math.sqrt(frameData.length));
+            const rows = Math.ceil(frameData.length / cols);
+            const fw = Math.floor(img.width / cols);
+            const fh = Math.floor(img.height / rows);
+            let xsPacked = [], ysPacked = [];
+            for (let i = 0; i < frameData.length; i++) {
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              xsPacked.push(-col * fw);
+              ysPacked.push(-row * fh);
+            }
+            xsPacked.push(xsPacked[0]);
+            ysPacked.push(ysPacked[0]);
+            let keyTimesPacked = [];
+            let acc = 0;
+            for (let f of frameData) {
+              keyTimesPacked.push((acc / total).toFixed(4));
+              acc += f.duration;
+            }
+            keyTimesPacked.push("1.0000");
+            const packedSVG = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${fw} ${fh}" preserveAspectRatio="xMidYMid meet" overflow="hidden">
+  <defs>
+    <clipPath id="frame-clip">
+      <rect width="${fw}" height="${fh}" />
+    </clipPath>
+  </defs>
+  <image href="${mainSpriteData}" width="${fw * cols}" height="${fh * rows}" clip-path="url(#frame-clip)" style="image-rendering: pixelated;">
+    <animate attributeName="x" values="${xsPacked.join(';')}" keyTimes="${keyTimesPacked.join(';')}" calcMode="discrete" dur="${(total/1000)}s" repeatCount="${(+loopCountInput.value===0)?'indefinite':loopCountInput.value}"/>
+    <animate attributeName="y" values="${ysPacked.join(';')}" keyTimes="${keyTimesPacked.join(';')}" calcMode="discrete" dur="${(total/1000)}s" repeatCount="${(+loopCountInput.value===0)?'indefinite':loopCountInput.value}"/>
+  </image>
+</svg>
+            `.trim();
+            setSVGOutput(packedSVG);
+          };
+          img.src = mainSpriteData;
+          return;
+        }
         setSVGOutput(svgContent);
       });
 
-      // --- "Compress SVG", "Copy SVG", "Download SVG", "Copy Data URI" ---
-      compressSVGBtn.addEventListener("click", function(){
-        let svgContent = outputSVG.value;
+      // === SVG Output Buttons ===
+      compressSVGBtn.addEventListener("click", () => {
+        let content = outputSVG.value;
         let hrefMatches = [];
-        svgContent = svgContent.replace(/href="[^"]*"/g, function(match) {
+        content = content.replace(/href="[^"]*"/g, match => {
           hrefMatches.push(match);
           return "___HREF_PLACEHOLDER_" + (hrefMatches.length - 1) + "___";
         });
         let animMatches = [];
-        svgContent = svgContent.replace(/<animate[\s\S]*?<\/animate>/g, function(match) {
+        content = content.replace(/<animate[\s\S]*?<\/animate>/g, match => {
           animMatches.push(match);
           return "___ANIM_PLACEHOLDER_" + (animMatches.length - 1) + "___";
         });
-        svgContent = svgContent.replace(/>\s+</g, "><").trim();
-        svgContent = svgContent.replace(/<!--[\s\S]*?-->/g, "");
-        svgContent = svgContent.replace(/[\r\n\t]+/g, "");
-        svgContent = svgContent.replace(/ {2,}/g, " ");
-        svgContent = svgContent.replace(/<\?xml[\s\S]*?\?>/gi, "");
-        svgContent = svgContent.replace(/<!DOCTYPE[^>]*>/gi, "");
-        svgContent = svgContent.replace(/(\d+)px/gi, "$1");
-        svgContent = svgContent.replace(/___HREF_PLACEHOLDER_(\d+)___/g, function(match, index) {
-          return hrefMatches[index];
-        });
-        svgContent = svgContent.replace(/___ANIM_PLACEHOLDER_(\d+)___/g, function(match, index) {
-          return animMatches[index];
-        });
-        outputSVG.value = svgContent;
+        content = content.replace(/>\s+</g, "><").trim();
+        content = content.replace(/<!--[\s\S]*?-->/g, "");
+        content = content.replace(/[\r\n\t]+/g, "");
+        content = content.replace(/ {2,}/g, " ");
+        content = content.replace(/<\?xml[\s\S]*?\?>/gi, "");
+        content = content.replace(/<!DOCTYPE[^>]*>/gi, "");
+        content = content.replace(/(\d+)px/gi, "$1");
+        content = content.replace(/___HREF_PLACEHOLDER_(\d+)___/g, (m, i) => hrefMatches[i]);
+        content = content.replace(/___ANIM_PLACEHOLDER_(\d+)___/g, (m, i) => animMatches[i]);
+        outputSVG.value = content;
       });
-      copySVGBtn.addEventListener("click", function(){
+      copySVGBtn.addEventListener("click", () => {
         outputSVG.select();
         outputSVG.setSelectionRange(0, 99999);
         document.execCommand("copy");
         alert("SVG code copied to clipboard!");
       });
-      downloadSVGBtn.addEventListener("click", function(){
-        const svgContent = outputSVG.value;
-        const blob = new Blob([svgContent], { type: "image/svg+xml" });
+      downloadSVGBtn.addEventListener("click", () => {
+        const blob = new Blob([outputSVG.value], { type: "image/svg+xml" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = "animated.svg";
         link.click();
       });
-      copyDataURIBtn.addEventListener("click", function(){
-        const svgContent = outputSVG.value;
-        const encodedSvg = encodeURIComponent(svgContent);
-        const dataUri = "data:image/svg+xml;charset=utf-8," + encodedSvg;
+      copyDataURIBtn.addEventListener("click", () => {
+        const encoded = encodeURIComponent(outputSVG.value);
+        const dataUri = "data:image/svg+xml;charset=utf-8," + encoded;
         const dummy = document.createElement("input");
         document.body.appendChild(dummy);
         dummy.value = dataUri;
@@ -851,22 +760,22 @@
         dummy.setSelectionRange(0, 99999);
         document.execCommand("copy");
         document.body.removeChild(dummy);
-        alert("SVG Data URI copied!");
+        alert("Data URI copied to clipboard!");
       });
-      function setSVGOutput(svgContent) {
-        // Removed advanced optimization: use the SVG content as-is.
-        outputSVG.value = svgContent;
+
+      // === Set SVG Output & Update File Size Info ===
+      function setSVGOutput(content) {
+        outputSVG.value = content;
         copySVGBtn.disabled = false;
         downloadSVGBtn.disabled = false;
         compressSVGBtn.disabled = false;
         copyDataURIBtn.disabled = false;
-        previewContainer.innerHTML = svgContent;
-        updateFileSizeInfo(svgContent);
+        previewContainer.innerHTML = content;
+        updateFileSizeInfo(content);
       }
-      function updateFileSizeInfo(svgContent) {
-        const b = new Blob([svgContent], { type: "image/svg+xml" });
-        const sz = b.size;
-        const kb = (sz / 1024).toFixed(2);
+      function updateFileSizeInfo(content) {
+        const blob = new Blob([content], { type: "image/svg+xml" });
+        const kb = (blob.size / 1024).toFixed(2);
         fileSizeInfo.textContent = "Estimated SVG File Size: " + kb + " KB";
       }
     });
